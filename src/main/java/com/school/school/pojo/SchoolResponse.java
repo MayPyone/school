@@ -6,7 +6,7 @@ public record SchoolResponse(
         UUID id,
         String schoolName,
         String schoolEmail,
-        String schoolAddress,
+        List<String>  schoolAddress,
         String logoUrl,
         List<String> phoneNumbers,
         String description,

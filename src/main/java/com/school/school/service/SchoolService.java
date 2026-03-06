@@ -64,7 +64,7 @@ public class SchoolService {
 
     private SchoolResponse mapToResponse(School school) {
         return new SchoolResponse(
-                school.getId(), // Map the DB-generated UUID here
+                school.getId(),
                 school.getSchoolName(),
                 school.getSchoolEmail(),
                 school.getSchoolAddress(),

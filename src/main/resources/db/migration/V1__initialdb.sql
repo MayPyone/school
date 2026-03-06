@@ -13,7 +13,7 @@ CREATE TABLE schools (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   school_name VARCHAR(500) NOT NULL,
   school_email TEXT UNIQUE,
-  school_address VARCHAR(300),
+  school_addresses TEXT[],
   logo_url TEXT,
   phone_numbers TEXT[],
   description TEXT,
@@ -29,12 +29,12 @@ CREATE TABLE opening_hours (
   close_time TIME NOT NULL
 );
 
-CREATE TABLE locations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  school_id UUID REFERENCES schools(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  address TEXT
-);
+--CREATE TABLE locations (
+--  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+--  school_id UUID REFERENCES schools(id) ON DELETE CASCADE,
+--  name TEXT NOT NULL,
+--  address TEXT
+--);
 
 CREATE TABLE levels (
   id SERIAL PRIMARY KEY,
@@ -73,22 +73,34 @@ CREATE TABLE class_schedule (
   start_time TIME NOT NULL,
   end_time TIME NOT NULL,
   mode TEXT NOT NULL CHECK (mode IN ('ONLINE','ONSITE')),
-  location_id UUID REFERENCES locations(id),
+  location TEXT,
   meeting_url TEXT
 );
 
 CREATE TABLE staffs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+
   role TEXT NOT NULL CHECK (role IN ('ADMIN','TEACHER','ASSISTANT')),
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
   UNIQUE (user_id, school_id)
 );
 
 CREATE TABLE activities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+
   school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
-  images TEXT[],
+
+  title TEXT,
   description TEXT,
-  title TEXT
-)
+
+  images TEXT[],
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

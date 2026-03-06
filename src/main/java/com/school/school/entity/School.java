@@ -3,19 +3,11 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "schools")
 
-public class School {
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
+public class School extends BaseEntity {
 
     public String getSchoolName() {
         return schoolName;
@@ -33,11 +25,11 @@ public class School {
         this.schoolEmail = schoolEmail;
     }
 
-    public String getSchoolAddress() {
+    public List<String> getSchoolAddress() {
         return schoolAddress;
     }
 
-    public void setSchoolAddress(String schoolAddress) {
+    public void setSchoolAddress( List<String>  schoolAddress) {
         this.schoolAddress = schoolAddress;
     }
 
@@ -73,18 +65,15 @@ public class School {
         this.subTitle = subTitle;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
-
     @Column(name = "school_name", nullable = false)
     private String schoolName;
 
     @Column(name = "school_email", unique = true)
     private String schoolEmail;
 
-    @Column(name = "school_address")
-    private String schoolAddress;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "school_address", columnDefinition = "text[]")
+    private List<String> schoolAddress;
 
     @Column(name = "logo_url")
     private String logoUrl;

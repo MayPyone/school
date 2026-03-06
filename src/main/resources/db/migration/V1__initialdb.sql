@@ -49,9 +49,8 @@ CREATE TABLE lessons (
   title TEXT NOT NULL,
   level_id INT REFERENCES levels(id),
   category TEXT NOT NULL CHECK (category IN
-    ('LESSON','GRAMMAR','VOCAB','PRACTICE','GENERAL')),
+    ('GRAMMAR','VOCAB','PRACTICE','GENERAL')),
   content TEXT,
-  video_url TEXT,
   created_by UUID REFERENCES users(id)
 );
 
@@ -61,15 +60,10 @@ CREATE TABLE units (
   lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   content TEXT NOT NULL
+  video_url TEXT,
+  created_by UUID REFERENCES users(id)
 );
 
-CREATE TABLE vocabulary (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
-  word TEXT NOT NULL,
-  meaning TEXT,
-  example TEXT
-);
 
 CREATE TABLE class_schedule (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

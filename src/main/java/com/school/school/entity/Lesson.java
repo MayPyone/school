@@ -80,4 +80,12 @@ public class Lesson {
     public void setLevel(Level level) {
         this.level = level;
     }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
 }

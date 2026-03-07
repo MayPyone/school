@@ -11,14 +11,8 @@ public class Lesson {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name="school_id", nullable = false)
-    private UUID school_id;
-
     @Column(name="title" , nullable = false)
     private  String title;
-
-    @Column (name="level_id", nullable = false)
-    private Byte level_id;
 
     @Column (name="category", nullable = false)
     private  String category;
@@ -46,14 +40,6 @@ public class Lesson {
         this.id = id;
     }
 
-    public UUID getSchool_id() {
-        return school_id;
-    }
-
-    public void setSchool_id(UUID school_id) {
-        this.school_id = school_id;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -62,13 +48,6 @@ public class Lesson {
         this.title = title;
     }
 
-    public Byte getLevel_id() {
-        return level_id;
-    }
-
-    public void setLevel_id(Byte level_id) {
-        this.level_id = level_id;
-    }
 
     public String getCategory() {
         return category;

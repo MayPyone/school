@@ -25,14 +25,13 @@ public class ClassSchedule extends BaseEntity {
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location")
+
     private String location;
 
     @Column(name = "meeting_url")
     private String meetingUrl;
 
-    public ClassSchedule() {}
+
 
     public DayOfWeek getDayOfWeek() {
         return dayOfWeek;

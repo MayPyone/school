@@ -15,9 +15,6 @@ public class Unit extends BaseEntity {
     @Column(name = "video_url")
     private String videoUrl;
 
-    @Column(name = "position")
-    private Integer position;
-
     // Many units belong to one lesson
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
@@ -52,14 +49,6 @@ public class Unit extends BaseEntity {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
-    }
-
-    public Integer getPosition() {
-        return position;
-    }
-
-    public void setPosition(Integer position) {
-        this.position = position;
     }
 
     public Lesson getLesson() {

@@ -59,7 +59,7 @@ CREATE TABLE units (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  content TEXT NOT NULL
+  content TEXT NOT NULL,
   video_url TEXT,
   created_by UUID REFERENCES users(id)
 );

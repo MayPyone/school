@@ -72,7 +72,7 @@ public class School extends BaseEntity {
     private String schoolEmail;
 
     @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(name = "school_address", columnDefinition = "text[]")
+    @Column(name = "school_addresses", columnDefinition = "text[]")
     private List<String> schoolAddress;
 
     @Column(name = "logo_url")

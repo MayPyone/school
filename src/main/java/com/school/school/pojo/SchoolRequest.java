@@ -4,7 +4,7 @@ import java.util.List;
 public record SchoolRequest(
         String schoolName,
         String schoolEmail,
-        String schoolAddress,
+        List<String> schoolAddress,
         String logoUrl,
         List<String> phoneNumbers,
         String description,

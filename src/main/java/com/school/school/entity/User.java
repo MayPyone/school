@@ -1,7 +1,9 @@
 package com.school.school.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name="users")
 public class User extends BaseEntity{
     @Column(name="first_name", nullable = false)
     private String firstName;
@@ -13,7 +15,11 @@ public class User extends BaseEntity{
 
     private String password;
 
-    private String role;
+
+
+    @Enumerated(EnumType.STRING) // <--- THIS IS THE FIX
+    @Column(name = "role", nullable = false)
+    private StaffRole role;
 
     public String getFirstName() {
         return firstName;
@@ -47,11 +53,11 @@ public class User extends BaseEntity{
         this.password = password;
     }
 
-    public String getRole() {
+    public StaffRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(StaffRole role) {
         this.role = role;
     }
 }

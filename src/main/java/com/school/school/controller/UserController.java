@@ -3,6 +3,7 @@ package com.school.school.controller;
 import com.school.school.entity.User;
 import com.school.school.pojo.SchoolRequest;
 import com.school.school.pojo.SchoolResponse;
+import com.school.school.pojo.UserLoginRequest;
 import com.school.school.pojo.UserRequest;
 import com.school.school.repository.UserRepository;
 import com.school.school.service.UserService;
@@ -23,8 +24,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> addSchool(@RequestBody UserRequest request) {
+    public ResponseEntity<User> registerUser(@RequestBody UserRequest request) {
         User user = userService.registerUser(request);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @PostMapping(path="/login")
+    public ResponseEntity<User> signInUser(@RequestBody UserLoginRequest request){
+        User user = userService.login(request.email(), request.password());
+        return  new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 }

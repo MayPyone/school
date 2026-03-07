@@ -31,4 +31,14 @@ public class UserService {
         // 3. Save the new user to the database
         return userRepository.save(user);
     }
+
+    public User login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalStateException("Wrong password");
+        }
+        return user;
+    }
 }

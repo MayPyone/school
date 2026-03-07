@@ -1,7 +1,9 @@
 package com.school.school.pojo;
 import java.util.List;
+import java.util.UUID;
 
 public record SchoolRequest(
+        UUID userId,
         String schoolName,
         String schoolEmail,
         List<String> schoolAddress,

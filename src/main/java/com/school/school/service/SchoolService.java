@@ -1,10 +1,12 @@
 package com.school.school.service;
 
 import com.school.school.entity.School;
+import com.school.school.entity.User;
 import com.school.school.pojo.SchoolRequest;
 import com.school.school.pojo.SchoolResponse;
 import com.school.school.pojo.SchoolUpdate;
 import com.school.school.repository.SchoolRepository;
+import com.school.school.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -14,12 +16,16 @@ import java.util.UUID;
 @Service
 public class SchoolService {
     private final SchoolRepository schoolRepository;
+    private final UserRepository userRepository;
 
-    public SchoolService(SchoolRepository schoolRepository) {
+    public SchoolService(SchoolRepository schoolRepository, UserRepository userRepository) {
         this.schoolRepository = schoolRepository;
+        this.userRepository = userRepository;
     }
 
     public SchoolResponse createSchool(SchoolRequest request) {
+        User owner = userRepository.findById(request.userId())
+                     .orElseThrow(() -> new IllegalStateException("User not found"));
         School school = new School();
         school.setSchoolName(request.schoolName());
         school.setSchoolEmail(request.schoolEmail());
@@ -28,6 +34,7 @@ public class SchoolService {
         school.setPhoneNumbers(request.phoneNumbers());
         school.setDescription(request.description());
         school.setSubTitle(request.subTitle());
+        school.setOwner(owner);
 
         return mapToResponse(schoolRepository.save(school));
     }
@@ -38,12 +45,33 @@ public class SchoolService {
                 "school with id " + id + " does not exist"
         ));;
 
-        school.setSchoolName(request.schoolName());
-        school.setSchoolAddress(request.schoolAddress());
-        school.setDescription(request.description());
-        school.setPhoneNumbers(request.phoneNumbers());
-        school.setLogoUrl(request.logoUrl());
-        school.setSubTitle(request.subTitle());
+        if(request.schoolName() !=null) {
+            school.setSchoolName(request.schoolName());
+        }
+
+        if(request.schoolAddress() !=null) {
+            school.setSchoolAddress(request.schoolAddress());
+        }
+
+
+        if(request.description() !=null) {
+            school.setDescription(request.description());
+        }
+
+
+        if(request.phoneNumbers() !=null) {
+            school.setPhoneNumbers(request.phoneNumbers());
+        }
+
+
+        if(request.logoUrl() !=null) {
+            school.setLogoUrl(request.logoUrl());
+        }
+
+
+        if(request.subTitle() !=null) {
+            school.setSubTitle(request.subTitle());
+        }
 
         return mapToResponse(school);
 

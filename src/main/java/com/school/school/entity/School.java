@@ -65,6 +65,14 @@ public class School extends BaseEntity {
         this.subTitle = subTitle;
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
     @Column(name = "school_name", nullable = false)
     private String schoolName;
 
@@ -86,4 +94,8 @@ public class School extends BaseEntity {
 
     @Column(name = "subtitle")
     private String subTitle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="owner_id", nullable = false)
+    private User owner;
 }

@@ -6,6 +6,7 @@ import com.school.school.entity.School;
 import com.school.school.entity.User;
 import com.school.school.pojo.LessonRequest;
 import com.school.school.pojo.LessonResponse;
+import com.school.school.pojo.LessonUpdate;
 import com.school.school.pojo.SchoolResponse;
 import com.school.school.repository.LessonRepository;
 import com.school.school.repository.LevelRepository;
@@ -13,6 +14,8 @@ import com.school.school.repository.SchoolRepository;
 import com.school.school.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class LessonService {
@@ -29,13 +32,13 @@ public class LessonService {
     }
 
     @Transactional
-    public LessonResponse createLesson(LessonRequest request){
-        School school = schoolRepository.findById(request.schoolId())
+    public LessonResponse createLesson(LessonRequest request, UUID schoolId, UUID userId){
+        School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> new IllegalStateException(
-                        "school with id" + request.schoolId() + "does not exist"
+                        "school with id" + schoolId + "does not exist"
                 ));
 
-        User user = userRepository.findById(request.userId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException(("user not found")));
 
         Level level = levelRepository.findById(request.levelId())
@@ -62,6 +65,38 @@ public class LessonService {
         }
 
       return  mapToResponse(lessonRepository.save(lesson));
+
+    }
+
+    @Transactional
+    public LessonResponse updateLesson(LessonUpdate request, UUID schoolId, UUID lessonId, UUID userId) {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "school with id" + schoolId + "does not exist"
+                ));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException(("user not found")));
+
+        Level level = levelRepository.findById(request.levelId())
+                .orElseThrow(() -> new IllegalStateException(("level not found")));
+        Lesson lesson = new Lesson();
+
+        if(request.title() !=null){
+            lesson.setTitle(request.title());
+        }
+        if(request.category() !=null){
+            lesson.setCategory(request.category());
+        }
+        if(request.content() !=null){
+            lesson.setContent(request.content());
+        }
+        if(request.levelId() != null){
+            lesson.setLevel(level);
+        }
+
+
+        return  mapToResponse(lesson);
 
     }
 

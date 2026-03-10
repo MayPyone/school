@@ -22,9 +22,10 @@ public class LessonController {
         this.userService = userService;
     }
 
+
+
    @PostMapping
     public LessonResponse createLesson(@PathVariable UUID schoolId, @RequestParam UUID userId, @RequestBody  LessonRequest request){
         return lessonService.createLesson(request, schoolId, userId);
-
    }
 }

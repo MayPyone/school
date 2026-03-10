@@ -25,6 +25,14 @@ public class Unit extends BaseEntity {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public Unit() {}
 
     public String getTitle() {

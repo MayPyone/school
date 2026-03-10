@@ -4,10 +4,7 @@ import com.school.school.entity.Lesson;
 import com.school.school.entity.Level;
 import com.school.school.entity.School;
 import com.school.school.entity.User;
-import com.school.school.pojo.LessonRequest;
-import com.school.school.pojo.LessonResponse;
-import com.school.school.pojo.LessonUpdate;
-import com.school.school.pojo.SchoolResponse;
+import com.school.school.pojo.*;
 import com.school.school.repository.LessonRepository;
 import com.school.school.repository.LevelRepository;
 import com.school.school.repository.SchoolRepository;
@@ -29,6 +26,11 @@ public class LessonService {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
         this.levelRepository = levelRepository;
+    }
+
+
+    public LessonUnitResponse getLesson(UUID lessonId) {
+
     }
 
     @Transactional

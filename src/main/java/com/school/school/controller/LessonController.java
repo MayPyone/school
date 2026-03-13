@@ -3,6 +3,7 @@ package com.school.school.controller;
 import com.school.school.pojo.LessonRequest;
 import com.school.school.pojo.LessonResponse;
 import com.school.school.pojo.LessonUnitResponse;
+import com.school.school.pojo.LessonUpdate;
 import com.school.school.service.LessonService;
 import com.school.school.service.SchoolService;
 import com.school.school.service.UserService;
@@ -31,5 +32,10 @@ public class LessonController {
    @PostMapping
     public LessonResponse createLesson(@PathVariable UUID schoolId, @RequestBody  LessonRequest request){
         return lessonService.createLesson(request, schoolId);
+   }
+
+   @PutMapping("/{lessonId}")
+    public LessonResponse updateLesson(@RequestBody LessonUpdate request, @PathVariable UUID lessonId){
+        return  lessonService.updateLesson(request, lessonId);
    }
 }

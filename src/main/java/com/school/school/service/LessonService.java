@@ -74,18 +74,21 @@ public class LessonService {
     }
 
     @Transactional
-    public LessonResponse updateLesson(LessonUpdate request, UUID schoolId, UUID lessonId, UUID userId) {
-        School school = schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "school with id" + schoolId + "does not exist"
-                ));
+    public LessonResponse updateLesson(LessonUpdate request, UUID lessonId) {
+//        School school = schoolRepository.findById(schoolId)
+//                .orElseThrow(() -> new IllegalStateException(
+//                        "school with id" + schoolId + "does not exist"
+//                ));
+//
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new IllegalStateException(("user not found")));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException(("user not found")));
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalStateException("lesson with id"+ lessonId + "does not exist"));
 
         Level level = levelRepository.findById(request.levelId())
                 .orElseThrow(() -> new IllegalStateException(("level not found")));
-        Lesson lesson = new Lesson();
+
 
         if(request.title() !=null){
             lesson.setTitle(request.title());

@@ -7,6 +7,7 @@ import com.school.school.pojo.LessonUpdate;
 import com.school.school.service.LessonService;
 import com.school.school.service.SchoolService;
 import com.school.school.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -37,5 +38,11 @@ public class LessonController {
    @PutMapping("/{lessonId}")
     public LessonResponse updateLesson(@RequestBody LessonUpdate request, @PathVariable UUID lessonId){
         return  lessonService.updateLesson(request, lessonId);
+   }
+
+   @DeleteMapping("/{lessonId}")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLesson(@PathVariable UUID lessonId){
+        lessonService.deleteLesson(lessonId);
    }
 }

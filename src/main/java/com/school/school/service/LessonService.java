@@ -108,6 +108,12 @@ public class LessonService {
 
     }
 
+    public void deleteLesson (UUID lessonId){
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalStateException("lesson with id"+ lessonId + "does not exist"));
+
+        lessonRepository.deleteById(lessonId);
+    }
 
 
     private LessonResponse mapToResponse(Lesson lesson) {

@@ -6,4 +6,5 @@ import java.util.UUID;
 public interface SchoolRepository extends JpaRepository<School, UUID> {
     // Custom query example:
     boolean existsBySchoolEmail(String email);
+
 }

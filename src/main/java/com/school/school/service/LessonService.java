@@ -26,6 +26,20 @@ public class LessonService {
     }
 
 
+    public List<LessonResponse> getAllLessons (UUID schoolId){
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalStateException((
+                        "school with id" + schoolId + "does not exist"
+                )));
+
+        List<Lesson> lessons = lessonRepository.findBySchoolId(schoolId);
+
+        return lessons
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+
+    }
 
     public LessonUnitResponse getLesson(UUID lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)

@@ -10,6 +10,7 @@ import com.school.school.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,8 +26,13 @@ public class LessonController {
         this.userService = userService;
     }
 
+    @GetMapping
+    public List<LessonResponse> getAllLessons(@PathVariable UUID schoolId) {
+        return lessonService.getAllLessons(schoolId);
+    }
+
     @GetMapping("/{lessonId}")
-    public LessonUnitResponse getLessons(@PathVariable UUID lessonId){
+    public LessonUnitResponse getLesson(@PathVariable UUID lessonId){
         return lessonService.getLesson(lessonId);
     }
 

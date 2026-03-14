@@ -1,10 +1,13 @@
 package com.school.school.pojo;
 
+import java.util.UUID;
+
 public record UpdateUnitRequest(
         String title,
         String content,
         String videoUrl,
-        String lessonId,
-        String createdById
+        UUID lessonId,
+        UUID createdById,
+        UUID id
 ) {
 }

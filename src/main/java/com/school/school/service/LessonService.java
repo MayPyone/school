@@ -154,7 +154,7 @@ public class LessonService {
         return new LessonUnitResponse(lessonResponse, unitResponses);
     }
 
-    private UnitResponse mapToUnitResponse(Unit unit) {
+    public UnitResponse mapToUnitResponse(Unit unit) {
         return new UnitResponse(
                 unit.getId(),
                 unit.getTitle(),

@@ -10,5 +10,6 @@ public record SchoolRequest(
         String logoUrl,
         List<String> phoneNumbers,
         String description,
-        String subTitle
+        String subTitle,
+        List<OpeningHourRequest> openingHours
 ) {}

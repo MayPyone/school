@@ -2,6 +2,8 @@ package com.school.school.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "opening_hours")
@@ -20,6 +22,9 @@ public class OpeningHour extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
+
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OpeningHour> openingHours = new ArrayList<>();
 
     public OpeningHour() {}
 
@@ -53,5 +58,13 @@ public class OpeningHour extends BaseEntity {
 
     public void setSchool(School school) {
         this.school = school;
+    }
+
+    public List<OpeningHour> getOpeningHours() {
+        return openingHours;
+    }
+
+    public void setOpeningHours(List<OpeningHour> openingHours) {
+        this.openingHours = openingHours;
     }
 }

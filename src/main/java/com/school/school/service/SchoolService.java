@@ -23,6 +23,7 @@ public class SchoolService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public SchoolResponse createSchool(SchoolRequest request) {
         User owner = userRepository.findById(request.userId())
                      .orElseThrow(() -> new IllegalStateException("User not found"));

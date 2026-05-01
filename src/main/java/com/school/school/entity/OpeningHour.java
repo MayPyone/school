@@ -23,8 +23,8 @@ public class OpeningHour extends BaseEntity {
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
-    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OpeningHour> openingHours = new ArrayList<>();
+//    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<OpeningHour> openingHours = new ArrayList<>();
 
     public OpeningHour() {}
 
@@ -60,11 +60,11 @@ public class OpeningHour extends BaseEntity {
         this.school = school;
     }
 
-    public List<OpeningHour> getOpeningHours() {
-        return openingHours;
-    }
-
-    public void setOpeningHours(List<OpeningHour> openingHours) {
-        this.openingHours = openingHours;
-    }
+//    public List<OpeningHour> getOpeningHours() {
+//        return openingHours;
+//    }
+//
+//    public void setOpeningHours(List<OpeningHour> openingHours) {
+//        this.openingHours = openingHours;
+//    }
 }

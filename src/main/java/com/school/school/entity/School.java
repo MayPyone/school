@@ -2,6 +2,8 @@ package com.school.school.entity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -73,6 +75,13 @@ public class School extends BaseEntity {
         this.owner = owner;
     }
 
+        public List<OpeningHour> getOpeningHours() {
+        return openingHours;
+    }
+
+    public void setOpeningHours(List<OpeningHour> openingHours) {
+        this.openingHours = openingHours;
+    }
     @Column(name = "school_name", nullable = false)
     private String schoolName;
 
@@ -98,4 +107,7 @@ public class School extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="owner_id", nullable = false)
     private User owner;
+
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OpeningHour> openingHours = new ArrayList<>();
 }

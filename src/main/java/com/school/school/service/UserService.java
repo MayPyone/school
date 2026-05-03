@@ -26,7 +26,7 @@ public class UserService {
         user.setRole(request.role());
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
-        user.setPassword(request.password()); // Note: You should encode this later!
+        user.setPassword(request.password());
 
         // 3. Save the new user to the database
         return userRepository.save(user);

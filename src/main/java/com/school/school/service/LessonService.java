@@ -89,13 +89,6 @@ public class LessonService {
 
     @Transactional
     public LessonResponse updateLesson(LessonUpdate request, UUID lessonId) {
-//        School school = schoolRepository.findById(schoolId)
-//                .orElseThrow(() -> new IllegalStateException(
-//                        "school with id" + schoolId + "does not exist"
-//                ));
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new IllegalStateException(("user not found")));
 
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new IllegalStateException("lesson with id"+ lessonId + "does not exist"));

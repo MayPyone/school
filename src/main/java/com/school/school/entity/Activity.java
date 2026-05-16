@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -18,6 +19,17 @@ public class Activity extends BaseEntity {
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "images", columnDefinition = "text[]")
     private List<String> images;
+
+    @Column(name = "activity_date")
+    private LocalDate activityDate;
+
+    private String location;
+
+    @Column(name = "max_participants")
+    private Integer maxParticipants;
+
+    @Column(name = "registered_count")
+    private Integer registeredCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id", nullable = false)
@@ -47,6 +59,38 @@ public class Activity extends BaseEntity {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public LocalDate getActivityDate() {
+        return activityDate;
+    }
+
+    public void setActivityDate(LocalDate activityDate) {
+        this.activityDate = activityDate;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Integer getMaxParticipants() {
+        return maxParticipants;
+    }
+
+    public void setMaxParticipants(Integer maxParticipants) {
+        this.maxParticipants = maxParticipants;
+    }
+
+    public Integer getRegisteredCount() {
+        return registeredCount;
+    }
+
+    public void setRegisteredCount(Integer registeredCount) {
+        this.registeredCount = registeredCount;
     }
 
     public School getSchool() {

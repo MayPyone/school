@@ -1,0 +1,11 @@
+ALTER TABLE staffs
+ADD COLUMN phone TEXT,
+ADD COLUMN hire_date DATE,
+ADD COLUMN status TEXT NOT NULL DEFAULT 'ACTIVE'
+    CHECK (status IN ('ACTIVE','INACTIVE','ON_LEAVE'));
+
+ALTER TABLE activities
+ADD COLUMN activity_date DATE,
+ADD COLUMN location TEXT,
+ADD COLUMN max_participants INT,
+ADD COLUMN registered_count INT NOT NULL DEFAULT 0;

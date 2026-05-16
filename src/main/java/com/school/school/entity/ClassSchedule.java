@@ -25,6 +25,9 @@ public class ClassSchedule extends BaseEntity {
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id")
+    private User teacher;
 
     private String location;
 
@@ -71,6 +74,14 @@ public class ClassSchedule extends BaseEntity {
 
     public void setSchool(School school) {
         this.school = school;
+    }
+
+    public User getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(User teacher) {
+        this.teacher = teacher;
     }
 
     public String getLocation() {

@@ -8,12 +8,16 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -37,9 +41,13 @@ public class SupabaseStorageService {
     }
 
     public ImageUploadPresignResponse presignImageUpload(ImageUploadPresignRequest request) {
+        return presignImageUpload(request.schoolId(), request);
+    }
+
+    public ImageUploadPresignResponse presignImageUpload(UUID schoolId, ImageUploadPresignRequest request) {
         validateConfiguration();
         String contentType = validateContentType(request.contentType());
-        String key = buildObjectKey(request.folder(), request.originalFilename(), contentType);
+        String key = buildObjectKey(request.folder(), schoolId, request.originalFilename(), contentType);
         Duration signatureDuration = Duration.ofSeconds(properties.getUploadUrlDurationSeconds());
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -65,6 +73,20 @@ public class SupabaseStorageService {
         }
     }
 
+    public void deleteImage(String publicUrl) {
+        validateConfiguration();
+        String key = objectKeyFromPublicUrl(publicUrl);
+
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(properties.getBucket())
+                .key(key)
+                .build();
+
+        try (S3Client s3Client = createS3Client()) {
+            s3Client.deleteObject(deleteObjectRequest);
+        }
+    }
+
     private S3Presigner createPresigner() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(
                 properties.getAccessKeyId(),
@@ -72,6 +94,23 @@ public class SupabaseStorageService {
         );
 
         return S3Presigner.builder()
+                .region(Region.of(properties.getRegion()))
+                .endpointOverride(URI.create(resolveEndpoint()))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)
+                        .checksumValidationEnabled(false)
+                        .build())
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .build();
+    }
+
+    private S3Client createS3Client() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(
+                properties.getAccessKeyId(),
+                properties.getSecretAccessKey()
+        );
+
+        return S3Client.builder()
                 .region(Region.of(properties.getRegion()))
                 .endpointOverride(URI.create(resolveEndpoint()))
                 .serviceConfiguration(S3Configuration.builder()
@@ -97,11 +136,12 @@ public class SupabaseStorageService {
         return contentType.toLowerCase(Locale.ROOT);
     }
 
-    private String buildObjectKey(String folder, String originalFilename, String contentType) {
+    private String buildObjectKey(String folder, UUID schoolId, String originalFilename, String contentType) {
         String safeFolder = sanitizeFolder(folder);
         LocalDate today = LocalDate.now();
         String extension = extensionFor(originalFilename, contentType);
-        return safeFolder + "/" + today.getYear() + "/" + today.getMonthValue() + "/" + UUID.randomUUID() + extension;
+        String schoolSegment = schoolId == null || safeFolder.endsWith("/" + schoolId) ? "" : "/" + schoolId;
+        return safeFolder + schoolSegment + "/" + today.getYear() + "/" + today.getMonthValue() + "/" + UUID.randomUUID() + extension;
     }
 
     private String sanitizeFolder(String folder) {
@@ -144,6 +184,30 @@ public class SupabaseStorageService {
             throw new IllegalStateException("Supabase public base URL is not configured");
         }
         return baseUrl.replaceAll("/+$", "") + "/" + key;
+    }
+
+    private String objectKeyFromPublicUrl(String publicUrl) {
+        String baseUrl = properties.getPublicBaseUrl();
+        if (isBlank(publicUrl) || isBlank(baseUrl)) {
+            throw new IllegalStateException("Supabase public URL is required");
+        }
+
+        String normalizedBaseUrl = baseUrl.replaceAll("/+$", "") + "/";
+        if (!publicUrl.startsWith(normalizedBaseUrl)) {
+            throw new IllegalStateException("Image URL does not belong to the configured storage bucket");
+        }
+
+        String key = publicUrl.substring(normalizedBaseUrl.length());
+        int queryIndex = key.indexOf('?');
+        if (queryIndex >= 0) {
+            key = key.substring(0, queryIndex);
+        }
+
+        key = URLDecoder.decode(key, StandardCharsets.UTF_8);
+        if (key.isBlank() || key.contains("..")) {
+            throw new IllegalStateException("Invalid storage object key");
+        }
+        return key;
     }
 
     private void validateConfiguration() {

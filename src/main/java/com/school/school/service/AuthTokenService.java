@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthTokenService {
-    private static final Duration TOKEN_TTL = Duration.ofHours(8);
+    private static final Duration TOKEN_TTL = Duration.ofHours(2);
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final UserRepository userRepository;

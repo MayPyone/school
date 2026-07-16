@@ -4,6 +4,10 @@ Spring Boot REST API for managing schools, users, lessons, and lesson units.
 The application uses PostgreSQL for persistence, Flyway for schema migrations,
 Spring Data JPA for repositories, and Spring MVC controllers for HTTP routes.
 
+## Related Repository
+
+Frontend repository: [school-frontend](https://github.com/MayPyone/school-frontend)
+
 ## Project Layout
 
 ```text

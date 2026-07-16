@@ -51,6 +51,10 @@ public class SchoolService {
             school.setSchoolName(request.schoolName());
         }
 
+        if(request.schoolEmail() != null) {
+            school.setSchoolEmail(request.schoolEmail());
+        }
+
         if(request.schoolAddress() !=null) {
             school.setSchoolAddress(request.schoolAddress());
         }

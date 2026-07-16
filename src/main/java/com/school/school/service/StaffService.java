@@ -42,6 +42,19 @@ public class StaffService {
                 .toList();
     }
 
+    public List<StaffResponse> getActiveStaff(String schoolId) {
+        UUID resolvedSchoolId = resolveSchoolId(schoolId);
+        if (resolvedSchoolId == null) {
+            return List.of();
+        }
+
+        return staffRepository.findBySchoolIdOrderByCreatedAtDesc(resolvedSchoolId)
+                .stream()
+                .filter(staff -> staff.getStatus() == StaffStatus.ACTIVE)
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private UUID resolveSchoolId(String idOrCustomizeSchoolId) {
         if (idOrCustomizeSchoolId == null || idOrCustomizeSchoolId.isBlank()) {
             return null;

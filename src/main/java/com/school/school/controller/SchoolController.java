@@ -53,7 +53,7 @@ public class SchoolController {
 
     @GetMapping(path = "{id}/staff")
     public ResponseEntity<List<StaffResponse>> getSchoolStaff(@PathVariable("id") String id) {
-        return ResponseEntity.ok(staffService.getStaff(id));
+        return ResponseEntity.ok(staffService.getActiveStaff(id));
     }
 
     @GetMapping(path = "{id}/activities")

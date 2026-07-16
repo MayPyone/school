@@ -28,7 +28,7 @@ public class ClassScheduleController {
     }
 
     @GetMapping
-    public List<ClassScheduleResponse> getSchedules(@RequestParam(required = false) UUID schoolId) {
+    public List<ClassScheduleResponse> getSchedules(@RequestParam(required = false) String schoolId) {
         return classScheduleService.getSchedules(schoolId);
     }
 

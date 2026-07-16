@@ -27,14 +27,29 @@ public class ClassScheduleService {
         this.userRepository = userRepository;
     }
 
-    public List<ClassScheduleResponse> getSchedules(UUID schoolId) {
-        List<ClassSchedule> schedules = schoolId == null
+    public List<ClassScheduleResponse> getSchedules(String schoolId) {
+        UUID resolvedSchoolId = resolveSchoolId(schoolId);
+        List<ClassSchedule> schedules = resolvedSchoolId == null
                 ? classScheduleRepository.findAllByOrderByDayOfWeekAscStartTimeAsc()
-                : classScheduleRepository.findBySchoolIdOrderByDayOfWeekAscStartTimeAsc(schoolId);
+                : classScheduleRepository.findBySchoolIdOrderByDayOfWeekAscStartTimeAsc(resolvedSchoolId);
 
         return schedules.stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    private UUID resolveSchoolId(String idOrCustomizeSchoolId) {
+        if (idOrCustomizeSchoolId == null || idOrCustomizeSchoolId.isBlank()) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(idOrCustomizeSchoolId);
+        } catch (IllegalArgumentException ignored) {
+            return schoolRepository.findByCustomizeSchoolId(idOrCustomizeSchoolId)
+                    .orElseThrow(() -> new IllegalStateException("School not found"))
+                    .getId();
+        }
     }
 
     @Transactional

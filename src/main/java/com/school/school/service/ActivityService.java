@@ -32,6 +32,11 @@ public class ActivityService {
                 .toList();
     }
 
+    public List<ActivityResponse> getActivities(String schoolId) {
+        UUID resolvedSchoolId = resolveSchoolId(schoolId);
+        return getActivities(resolvedSchoolId);
+    }
+
     @Transactional
     public ActivityResponse createActivity(ActivityRequest request) {
         if (request.schoolId() == null || request.title() == null || request.title().isBlank()) {
@@ -107,5 +112,19 @@ public class ActivityService {
                 activity.getCreatedAt(),
                 activity.getUpdatedAt()
         );
+    }
+
+    private UUID resolveSchoolId(String idOrCustomizeSchoolId) {
+        if (idOrCustomizeSchoolId == null || idOrCustomizeSchoolId.isBlank()) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(idOrCustomizeSchoolId);
+        } catch (IllegalArgumentException ignored) {
+            return schoolRepository.findByCustomizeSchoolId(idOrCustomizeSchoolId)
+                    .orElseThrow(() -> new IllegalStateException("School not found"))
+                    .getId();
+        }
     }
 }

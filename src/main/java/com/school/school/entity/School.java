@@ -67,6 +67,14 @@ public class School extends BaseEntity {
         this.subTitle = subTitle;
     }
 
+    public String getCustomizeSchoolId() {
+        return customizeSchoolId;
+    }
+
+    public void setCustomizeSchoolId(String customizeSchoolId) {
+        this.customizeSchoolId = customizeSchoolId;
+    }
+
     public User getOwner() {
         return owner;
     }
@@ -103,6 +111,9 @@ public class School extends BaseEntity {
 
     @Column(name = "subtitle")
     private String subTitle;
+
+    @Column(name = "customize_school_id", nullable = false, unique = true)
+    private String customizeSchoolId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="owner_id", nullable = false)

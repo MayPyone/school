@@ -27,7 +27,7 @@ public class LessonController {
     }
 
     @GetMapping
-    public List<LessonResponse> getAllLessons(@PathVariable UUID schoolId) {
+    public List<LessonResponse> getAllLessons(@PathVariable String schoolId) {
         return lessonService.getAllLessons(schoolId);
     }
 

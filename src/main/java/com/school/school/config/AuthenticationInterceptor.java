@@ -72,10 +72,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        return path.startsWith("/api/v1/schools")
-                || path.startsWith("/api/v1/schedules")
-                || path.startsWith("/api/v1/activities")
-                || path.startsWith("/api/v1/staff");
+        return path.matches("^/api/v1/schools/?$")
+                || path.matches("^/api/v1/schools/[^/]+/?$")
+                || path.matches("^/api/v1/schools/[^/]+/lessons(/[^/]+)?/?$")
+                || path.matches("^/api/v1/schools/[^/]+/schedules/?$")
+                || path.matches("^/api/v1/schools/[^/]+/staff/?$")
+                || path.matches("^/api/v1/schools/[^/]+/activities/?$");
     }
 
     private boolean isPublicRoute(HttpServletRequest request) {
@@ -117,6 +119,9 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         return path.matches("^/api/v1/schools/?$")
                 || path.matches("^/api/v1/schools/[^/]+/?$")
                 || path.matches("^/api/v1/schools/[^/]+/lessons(/[^/]+)?/?$")
+                || path.matches("^/api/v1/schools/[^/]+/schedules/?$")
+                || path.matches("^/api/v1/schools/[^/]+/staff/?$")
+                || path.matches("^/api/v1/schools/[^/]+/activities/?$")
                 || path.matches("^/api/v1/lessons/[^/]+/units(/[^/]+)?/?$")
                 || path.matches("^/api/v1/activities/?$")
                 || path.matches("^/api/v1/schedules/?$");

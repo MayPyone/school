@@ -31,14 +31,29 @@ public class StaffService {
         this.userRepository = userRepository;
     }
 
-    public List<StaffResponse> getStaff(UUID schoolId) {
-        List<Staff> staff = schoolId == null
+    public List<StaffResponse> getStaff(String schoolId) {
+        UUID resolvedSchoolId = resolveSchoolId(schoolId);
+        List<Staff> staff = resolvedSchoolId == null
                 ? staffRepository.findAllByOrderByCreatedAtDesc()
-                : staffRepository.findBySchoolIdOrderByCreatedAtDesc(schoolId);
+                : staffRepository.findBySchoolIdOrderByCreatedAtDesc(resolvedSchoolId);
 
         return staff.stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    private UUID resolveSchoolId(String idOrCustomizeSchoolId) {
+        if (idOrCustomizeSchoolId == null || idOrCustomizeSchoolId.isBlank()) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(idOrCustomizeSchoolId);
+        } catch (IllegalArgumentException ignored) {
+            return schoolRepository.findByCustomizeSchoolId(idOrCustomizeSchoolId)
+                    .orElseThrow(() -> new IllegalStateException("School not found"))
+                    .getId();
+        }
     }
 
     @Transactional
@@ -93,6 +108,28 @@ public class StaffService {
         }
 
         applyRequest(staff, request);
+        return mapToResponse(staff);
+    }
+
+    @Transactional
+    public StaffResponse revokeStaff(UUID staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new IllegalStateException("Staff member not found"));
+
+        staff.setStatus(StaffStatus.INACTIVE);
+        User user = staff.getUser();
+        List<Staff> activeStaffMemberships = staffRepository.findByUserId(user.getId())
+                .stream()
+                .filter(membership -> !membership.getId().equals(staff.getId()))
+                .filter(membership -> membership.getStatus() == StaffStatus.ACTIVE)
+                .toList();
+
+        if (activeStaffMemberships.isEmpty()) {
+            user.setRole(UserRole.END_USER);
+        } else {
+            user.setRole(UserRole.fromStaffRole(activeStaffMemberships.get(0).getRole()));
+        }
+
         return mapToResponse(staff);
     }
 

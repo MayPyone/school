@@ -30,20 +30,22 @@ public class UserService {
     }
 
     public AuthResponse registerUser(UserRequest request) {
-        // 1. Check if the user already exists
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new IllegalStateException("Email already taken!");
+        if (request == null || isBlank(request.firstName()) || isBlank(request.lastName())
+                || isBlank(request.email()) || isBlank(request.password())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "firstName, lastName, email, and password are required");
         }
 
-        // 2. Create a NEW user instance
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already taken!");
+        }
+
         User user = new User();
-        user.setEmail(request.email());
+        user.setEmail(request.email().trim());
         user.setRole(request.role() == null ? UserRole.END_USER : request.role());
-        user.setFirstName(request.firstName());
-        user.setLastName(request.lastName());
+        user.setFirstName(request.firstName().trim());
+        user.setLastName(request.lastName().trim());
         user.setPassword(request.password());
 
-        // 3. Save the new user to the database
         User savedUser = userRepository.save(user);
         return toAuthResponse(savedUser);
     }

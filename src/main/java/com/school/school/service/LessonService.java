@@ -16,23 +16,22 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private  final LevelRepository levelRepository;
     private  final UnitRepository unitRepository;
+    private final SchoolService schoolService;
 
-    public LessonService(SchoolRepository schoolRepository, UserRepository userRepository, LessonRepository lessonRepository, LevelRepository levelRepository, UnitRepository unitRepository) {
+    public LessonService(SchoolRepository schoolRepository, UserRepository userRepository, LessonRepository lessonRepository, LevelRepository levelRepository, UnitRepository unitRepository, SchoolService schoolService) {
         this.schoolRepository = schoolRepository;
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
         this.levelRepository = levelRepository;
         this.unitRepository = unitRepository;
+        this.schoolService = schoolService;
     }
 
 
-    public List<LessonResponse> getAllLessons (UUID schoolId){
-        School school = schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalStateException((
-                        "school with id" + schoolId + "does not exist"
-                )));
+    public List<LessonResponse> getAllLessons (String schoolId){
+        School school = schoolService.resolveSchool(schoolId);
 
-        List<Lesson> lessons = lessonRepository.findBySchoolId(schoolId);
+        List<Lesson> lessons = lessonRepository.findBySchoolId(school.getId());
 
         return lessons
                 .stream()

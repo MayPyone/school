@@ -28,7 +28,7 @@ public class StaffController {
     }
 
     @GetMapping
-    public List<StaffResponse> getStaff(@RequestParam(required = false) UUID schoolId) {
+    public List<StaffResponse> getStaff(@RequestParam(required = false) String schoolId) {
         return staffService.getStaff(schoolId);
     }
 
@@ -41,6 +41,11 @@ public class StaffController {
     @PutMapping("/{staffId}")
     public StaffResponse updateStaff(@PathVariable UUID staffId, @RequestBody StaffRequest request) {
         return staffService.updateStaff(staffId, request);
+    }
+
+    @PutMapping("/{staffId}/revoke")
+    public StaffResponse revokeStaff(@PathVariable UUID staffId) {
+        return staffService.revokeStaff(staffId);
     }
 
     @DeleteMapping("/{staffId}")

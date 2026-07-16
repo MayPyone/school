@@ -35,6 +35,7 @@ public class SchoolService {
         school.setPhoneNumbers(request.phoneNumbers());
         school.setDescription(request.description());
         school.setSubTitle(request.subTitle());
+        school.setCustomizeSchoolId(resolveUniqueCustomizeSchoolId(request.customizeSchoolId(), request.schoolName(), null));
         school.setOwner(owner);
 
         return mapToResponse(schoolRepository.save(school));
@@ -74,6 +75,10 @@ public class SchoolService {
             school.setSubTitle(request.subTitle());
         }
 
+        if(request.customizeSchoolId() != null) {
+            school.setCustomizeSchoolId(resolveUniqueCustomizeSchoolId(request.customizeSchoolId(), school.getSchoolName(), school.getId()));
+        }
+
         return mapToResponse(school);
 
     }
@@ -99,6 +104,20 @@ public class SchoolService {
                 .orElseThrow(() -> new IllegalStateException("school with id " + id + " does not exist")));
     }
 
+    public SchoolResponse getSchool(String idOrCustomizeSchoolId) {
+        return mapToResponse(resolveSchool(idOrCustomizeSchoolId));
+    }
+
+    public School resolveSchool(String idOrCustomizeSchoolId) {
+        try {
+            return schoolRepository.findById(UUID.fromString(idOrCustomizeSchoolId))
+                    .orElseThrow(() -> new IllegalStateException("school with id " + idOrCustomizeSchoolId + " does not exist"));
+        } catch (IllegalArgumentException ignored) {
+            return schoolRepository.findByCustomizeSchoolId(idOrCustomizeSchoolId)
+                    .orElseThrow(() -> new IllegalStateException("school with customizeSchoolId " + idOrCustomizeSchoolId + " does not exist"));
+        }
+    }
+
     private SchoolResponse mapToResponse(School school) {
         return new SchoolResponse(
                 school.getId(),
@@ -108,7 +127,39 @@ public class SchoolService {
                 school.getLogoUrl(),
                 school.getPhoneNumbers(),
                 school.getDescription(),
-                school.getSubTitle()
+                school.getSubTitle(),
+                school.getCustomizeSchoolId()
         );
+    }
+
+    private String resolveUniqueCustomizeSchoolId(String requestedCustomizeSchoolId, String schoolName, UUID currentSchoolId) {
+        String base = slugify(Optional.ofNullable(requestedCustomizeSchoolId)
+                .filter(value -> !value.isBlank())
+                .orElse(schoolName));
+        String candidate = base;
+        int suffix = 1;
+
+        while (isCustomizeSchoolIdTaken(candidate, currentSchoolId)) {
+            candidate = base + "-" + suffix;
+            suffix++;
+        }
+
+        return candidate;
+    }
+
+    private boolean isCustomizeSchoolIdTaken(String customizeSchoolId, UUID currentSchoolId) {
+        Optional<School> existingSchool = schoolRepository.findByCustomizeSchoolId(customizeSchoolId);
+        return existingSchool.isPresent() && !existingSchool.get().getId().equals(currentSchoolId);
+    }
+
+    private String slugify(String value) {
+        if (value == null) {
+            return "school";
+        }
+
+        String slug = value.toLowerCase()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        return slug.isBlank() ? "school" : slug;
     }
 }

@@ -10,5 +10,6 @@ public record SchoolResponse(
         String logoUrl,
         List<String> phoneNumbers,
         String description,
-        String subTitle
+        String subTitle,
+        String customizeSchoolId
 ) {}

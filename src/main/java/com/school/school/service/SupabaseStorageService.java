@@ -3,9 +3,12 @@ package com.school.school.service;
 import com.school.school.config.SupabaseStorageProperties;
 import com.school.school.pojo.ImageUploadPresignRequest;
 import com.school.school.pojo.ImageUploadPresignResponse;
+import com.school.school.pojo.ImageUploadResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -15,6 +18,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -70,6 +74,30 @@ public class SupabaseStorageService {
                     contentType,
                     Instant.now().plus(signatureDuration)
             );
+        }
+    }
+
+    public ImageUploadResponse uploadImage(MultipartFile file, String folder, UUID schoolId) {
+        validateConfiguration();
+        if (file == null || file.isEmpty()) {
+            throw new IllegalStateException("Please choose an image file.");
+        }
+
+        String contentType = validateContentType(file.getContentType());
+        String key = buildObjectKey(folder, schoolId, file.getOriginalFilename(), contentType);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(properties.getBucket())
+                .key(key)
+                .contentType(contentType)
+                .contentLength(file.getSize())
+                .build();
+
+        try (S3Client s3Client = createS3Client()) {
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            return new ImageUploadResponse(key, buildPublicUrl(key), contentType);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not read image upload.", exception);
         }
     }
 

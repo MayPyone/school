@@ -2,7 +2,7 @@ package com.school.school.service;
 
 import com.school.school.entity.ClassSchedule;
 import com.school.school.entity.School;
-import com.school.school.entity.StaffRole;
+import com.school.school.entity.UserRole;
 import com.school.school.entity.User;
 import com.school.school.pojo.ClassScheduleRequest;
 import com.school.school.pojo.ClassScheduleResponse;
@@ -105,7 +105,7 @@ public class ClassScheduleService {
         User teacher = userRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalStateException("Teacher not found"));
 
-        if (teacher.getRole() != StaffRole.TEACHER) {
+        if (teacher.getRole() != UserRole.TEACHER) {
             throw new IllegalStateException("Class schedule teacher must have TEACHER role");
         }
 

@@ -1,7 +1,7 @@
 package com.school.school.service;
 
 import com.school.school.entity.User;
-import com.school.school.entity.StaffRole;
+import com.school.school.entity.UserRole;
 import com.school.school.pojo.AuthResponse;
 import com.school.school.pojo.UserRequest;
 import com.school.school.pojo.UserResponse;
@@ -10,10 +10,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.EnumSet;
 import java.util.List;
 
 @Service
 public class UserService {
+    private static final List<UserRole> STAFF_ACCOUNT_ROLES = List.copyOf(EnumSet.of(
+            UserRole.ADMIN,
+            UserRole.TEACHER,
+            UserRole.ASSISTANT
+    ));
+
     private final UserRepository userRepository;
     private final AuthTokenService authTokenService;
 
@@ -31,7 +38,7 @@ public class UserService {
         // 2. Create a NEW user instance
         User user = new User();
         user.setEmail(request.email());
-        user.setRole(request.role());
+        user.setRole(request.role() == null ? UserRole.END_USER : request.role());
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPassword(request.password());
@@ -39,6 +46,34 @@ public class UserService {
         // 3. Save the new user to the database
         User savedUser = userRepository.save(user);
         return toAuthResponse(savedUser);
+    }
+
+    public boolean hasStaffAccounts() {
+        return userRepository.countByRoleIn(STAFF_ACCOUNT_ROLES) > 0;
+    }
+
+    public AuthResponse createInitialAdmin(UserRequest request) {
+        if (hasStaffAccounts()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Initial admin setup has already been completed");
+        }
+
+        if (isBlank(request.firstName()) || isBlank(request.lastName())
+                || isBlank(request.email()) || isBlank(request.password())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "firstName, lastName, email, and password are required");
+        }
+
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already taken!");
+        }
+
+        User user = new User();
+        user.setEmail(request.email());
+        user.setRole(UserRole.ADMIN);
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setPassword(request.password());
+
+        return toAuthResponse(userRepository.save(user));
     }
 
     public AuthResponse login(String email, String password) {
@@ -61,7 +96,7 @@ public class UserService {
         );
     }
 
-    public List<UserResponse> getUsers(StaffRole role) {
+    public List<UserResponse> getUsers(UserRole role) {
         List<User> users = role == null
                 ? userRepository.findAll()
                 : userRepository.findByRoleOrderByFirstNameAscLastNameAsc(role);
@@ -73,5 +108,9 @@ public class UserService {
 
     private AuthResponse toAuthResponse(User user) {
         return new AuthResponse(authTokenService.createToken(user), "Bearer", mapToResponse(user));
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }

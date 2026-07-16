@@ -4,7 +4,7 @@ import com.school.school.pojo.AuthResponse;
 import com.school.school.pojo.UserLoginRequest;
 import com.school.school.pojo.UserRequest;
 import com.school.school.pojo.UserResponse;
-import com.school.school.entity.StaffRole;
+import com.school.school.entity.UserRole;
 import com.school.school.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getUsers(@RequestParam(required = false) StaffRole role) {
+    public ResponseEntity<List<UserResponse>> getUsers(@RequestParam(required = false) UserRole role) {
         return ResponseEntity.ok(userService.getUsers(role));
     }
 

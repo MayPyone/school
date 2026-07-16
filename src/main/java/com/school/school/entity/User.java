@@ -17,9 +17,9 @@ public class User extends BaseEntity{
 
 
 
-    @Enumerated(EnumType.STRING) // <--- THIS IS THE FIX
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private StaffRole role;
+    private UserRole role;
 
     public String getFirstName() {
         return firstName;
@@ -53,11 +53,11 @@ public class User extends BaseEntity{
         this.password = password;
     }
 
-    public StaffRole getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(StaffRole role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 }

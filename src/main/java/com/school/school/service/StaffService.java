@@ -4,6 +4,7 @@ import com.school.school.entity.School;
 import com.school.school.entity.Staff;
 import com.school.school.entity.StaffStatus;
 import com.school.school.entity.User;
+import com.school.school.entity.UserRole;
 import com.school.school.pojo.StaffRequest;
 import com.school.school.pojo.StaffResponse;
 import com.school.school.repository.SchoolRepository;
@@ -53,7 +54,7 @@ public class StaffService {
             throw new IllegalStateException("This user is already staff for this school");
         }
 
-        user.setRole(request.role());
+        user.setRole(UserRole.fromStaffRole(request.role()));
 
         Staff staff = new Staff();
         staff.setSchool(school);
@@ -88,7 +89,7 @@ public class StaffService {
             user.setEmail(request.email());
         }
         if (request.role() != null) {
-            user.setRole(request.role());
+            user.setRole(UserRole.fromStaffRole(request.role()));
         }
 
         applyRequest(staff, request);
@@ -113,7 +114,7 @@ public class StaffService {
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(request.email());
-        user.setRole(request.role());
+        user.setRole(UserRole.fromStaffRole(request.role()));
         user.setPassword(generateTemporaryPassword());
         return userRepository.save(user);
     }
@@ -121,7 +122,7 @@ public class StaffService {
     private void applyRequest(Staff staff, StaffRequest request) {
         if (request.role() != null) {
             staff.setRole(request.role());
-            staff.getUser().setRole(request.role());
+            staff.getUser().setRole(UserRole.fromStaffRole(request.role()));
         }
         if (request.phone() != null) {
             staff.setPhone(request.phone());

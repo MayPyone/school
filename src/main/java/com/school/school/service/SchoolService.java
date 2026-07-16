@@ -87,8 +87,16 @@ public class SchoolService {
     }
 
 
-    public List<School> getAllSchools() {
-        return schoolRepository.findAll();
+    public List<SchoolResponse> getAllSchools() {
+        return schoolRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public SchoolResponse getSchool(UUID id) {
+        return mapToResponse(schoolRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("school with id " + id + " does not exist")));
     }
 
     private SchoolResponse mapToResponse(School school) {

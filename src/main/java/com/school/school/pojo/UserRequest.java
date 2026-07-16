@@ -1,12 +1,12 @@
 package com.school.school.pojo;
 
-import com.school.school.entity.StaffRole;
+import com.school.school.entity.UserRole;
 
 public record UserRequest(
         String firstName,
         String lastName,
         String email,
-        StaffRole role,
+        UserRole role,
         String password
 
 ) {

@@ -1,6 +1,7 @@
 package com.school.school.config;
 
 import com.school.school.entity.User;
+import com.school.school.entity.UserRole;
 import com.school.school.service.AuthTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,9 +42,40 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        request.setAttribute(AUTHENTICATED_USER_ATTRIBUTE, user.get());
+        User authenticatedUser = user.get();
+        if (!isAllowedForRole(request, authenticatedUser.getRole())) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.getWriter().write("{\"message\":\"This account does not have access to that resource\"}");
+            return false;
+        }
+
+        request.setAttribute(AUTHENTICATED_USER_ATTRIBUTE, authenticatedUser);
         request.setAttribute(AUTH_TOKEN_ATTRIBUTE, token.get());
         return true;
+    }
+
+    private boolean isAllowedForRole(HttpServletRequest request, UserRole role) {
+        if (role != UserRole.END_USER) {
+            return true;
+        }
+
+        String method = request.getMethod();
+        String path = request.getRequestURI();
+
+        if (HttpMethod.POST.matches(method) && "/api/v1/auth/logout".equals(path)) {
+            return true;
+        }
+
+        if (!HttpMethod.GET.matches(method)) {
+            return false;
+        }
+
+        return path.startsWith("/api/v1/schools")
+                || path.startsWith("/api/v1/schedules")
+                || path.startsWith("/api/v1/activities")
+                || path.startsWith("/api/v1/staff");
     }
 
     private boolean isPublicRoute(HttpServletRequest request) {
@@ -66,6 +98,27 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if (HttpMethod.GET.matches(method) && "/api/v1/setup/status".equals(path)) {
+            return true;
+        }
+
+        if (HttpMethod.POST.matches(method) && "/api/v1/setup/admin".equals(path)) {
+            return true;
+        }
+
+        if (HttpMethod.GET.matches(method) && isPublicReadRoute(path)) {
+            return true;
+        }
+
         return path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui");
+    }
+
+    private boolean isPublicReadRoute(String path) {
+        return path.matches("^/api/v1/schools/?$")
+                || path.matches("^/api/v1/schools/[^/]+/?$")
+                || path.matches("^/api/v1/schools/[^/]+/lessons(/[^/]+)?/?$")
+                || path.matches("^/api/v1/lessons/[^/]+/units(/[^/]+)?/?$")
+                || path.matches("^/api/v1/activities/?$")
+                || path.matches("^/api/v1/schedules/?$");
     }
 }

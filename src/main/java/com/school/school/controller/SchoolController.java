@@ -1,5 +1,4 @@
 package com.school.school.controller;
-import com.school.school.entity.School;
 import com.school.school.pojo.SchoolRequest;
 import com.school.school.pojo.SchoolResponse;
 import com.school.school.pojo.SchoolUpdate;
@@ -8,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/schools")
@@ -26,8 +25,13 @@ public class SchoolController {
     }
 
     @GetMapping
-    public ResponseEntity<List<School>> listSchools() {
+    public ResponseEntity<List<SchoolResponse>> listSchools() {
         return ResponseEntity.ok(schoolService.getAllSchools());
+    }
+
+    @GetMapping(path = "{id}")
+    public ResponseEntity<SchoolResponse> getSchool(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(schoolService.getSchool(id));
     }
 
     @PutMapping(path= "{id}")

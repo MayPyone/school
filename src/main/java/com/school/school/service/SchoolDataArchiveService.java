@@ -1,5 +1,6 @@
 package com.school.school.service;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.school.school.entity.Activity;
 import com.school.school.entity.ClassSchedule;
@@ -85,6 +86,7 @@ public class SchoolDataArchiveService {
         this.levelRepository = levelRepository;
         this.userRepository = userRepository;
         this.objectMapper = new ObjectMapper().findAndRegisterModules();
+        this.objectMapper.getFactory().disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
     }
 
     @Transactional

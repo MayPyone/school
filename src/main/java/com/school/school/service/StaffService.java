@@ -12,6 +12,7 @@ import com.school.school.repository.SchoolRepository;
 import com.school.school.repository.StaffRepository;
 import com.school.school.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -24,12 +25,14 @@ public class StaffService {
     private final StaffRepository staffRepository;
     private final SchoolRepository schoolRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public StaffService(StaffRepository staffRepository, SchoolRepository schoolRepository, UserRepository userRepository) {
+    public StaffService(StaffRepository staffRepository, SchoolRepository schoolRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.staffRepository = staffRepository;
         this.schoolRepository = schoolRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<StaffResponse> getStaff(String schoolId) {
@@ -235,7 +238,7 @@ public class StaffService {
         user.setLastName(request.lastName());
         user.setEmail(request.email());
         user.setRole(UserRole.fromStaffRole(request.role()));
-        user.setPassword(generateTemporaryPassword());
+        user.setPassword(passwordEncoder.encode(generateTemporaryPassword()));
         return userRepository.save(user);
     }
 

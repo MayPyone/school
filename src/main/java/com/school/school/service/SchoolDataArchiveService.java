@@ -31,6 +31,7 @@ import com.school.school.repository.StaffRepository;
 import com.school.school.repository.UnitRepository;
 import com.school.school.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,6 +63,7 @@ public class SchoolDataArchiveService {
     private final ActivityRepository activityRepository;
     private final LevelRepository levelRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -74,7 +76,8 @@ public class SchoolDataArchiveService {
             StaffRepository staffRepository,
             ActivityRepository activityRepository,
             LevelRepository levelRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.schoolService = schoolService;
         this.schoolRepository = schoolRepository;
@@ -85,6 +88,7 @@ public class SchoolDataArchiveService {
         this.activityRepository = activityRepository;
         this.levelRepository = levelRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.objectMapper = new ObjectMapper().findAndRegisterModules();
         this.objectMapper.getFactory().disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
     }
@@ -330,7 +334,7 @@ public class SchoolDataArchiveService {
                 .orElseGet(() -> {
                     User created = new User();
                     created.setEmail(archive.email());
-                    created.setPassword(generateTemporaryPassword());
+                    created.setPassword(passwordEncoder.encode(generateTemporaryPassword()));
                     return created;
                 });
 

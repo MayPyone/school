@@ -7,6 +7,7 @@ import com.school.school.pojo.UserRequest;
 import com.school.school.pojo.UserResponse;
 import com.school.school.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,10 +25,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AuthTokenService authTokenService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, AuthTokenService authTokenService) {
+    public UserService(UserRepository userRepository, AuthTokenService authTokenService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.authTokenService = authTokenService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public AuthResponse registerUser(UserRequest request) {
@@ -45,7 +48,7 @@ public class UserService {
         user.setRole(UserRole.END_USER);
         user.setFirstName(request.firstName().trim());
         user.setLastName(request.lastName().trim());
-        user.setPassword(request.password());
+        user.setPassword(passwordEncoder.encode(request.password()));
 
         User savedUser = userRepository.save(user);
         return toAuthResponse(savedUser);
@@ -74,7 +77,7 @@ public class UserService {
         user.setRole(UserRole.SUPER_ADMIN);
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
-        user.setPassword(request.password());
+        user.setPassword(passwordEncoder.encode(request.password()));
 
         return toAuthResponse(userRepository.save(user));
     }
@@ -83,9 +86,15 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
-        if (!user.getPassword().equals(password)) {
+        if (!passwordMatches(password, user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
+
+        if (!isEncodedPassword(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(password));
+            userRepository.save(user);
+        }
+
         return toAuthResponse(user);
     }
 
@@ -115,5 +124,21 @@ public class UserService {
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if (isBlank(storedPassword)) {
+            return false;
+        }
+
+        if (isEncodedPassword(storedPassword)) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
+        }
+
+        return storedPassword.equals(rawPassword);
+    }
+
+    private boolean isEncodedPassword(String password) {
+        return password != null && (password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$"));
     }
 }

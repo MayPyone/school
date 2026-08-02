@@ -73,8 +73,7 @@ public class SchoolDataArchiveService {
             StaffRepository staffRepository,
             ActivityRepository activityRepository,
             LevelRepository levelRepository,
-            UserRepository userRepository,
-            ObjectMapper objectMapper
+            UserRepository userRepository
     ) {
         this.schoolService = schoolService;
         this.schoolRepository = schoolRepository;
@@ -85,7 +84,7 @@ public class SchoolDataArchiveService {
         this.activityRepository = activityRepository;
         this.levelRepository = levelRepository;
         this.userRepository = userRepository;
-        this.objectMapper = objectMapper;
+        this.objectMapper = new ObjectMapper().findAndRegisterModules();
     }
 
     @Transactional

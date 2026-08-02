@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 public class UserService {
     private static final List<UserRole> STAFF_ACCOUNT_ROLES = List.copyOf(EnumSet.of(
+            UserRole.SUPER_ADMIN,
             UserRole.ADMIN,
             UserRole.TEACHER,
             UserRole.ASSISTANT
@@ -41,7 +42,7 @@ public class UserService {
 
         User user = new User();
         user.setEmail(request.email().trim());
-        user.setRole(request.role() == null ? UserRole.END_USER : request.role());
+        user.setRole(UserRole.END_USER);
         user.setFirstName(request.firstName().trim());
         user.setLastName(request.lastName().trim());
         user.setPassword(request.password());
@@ -56,7 +57,7 @@ public class UserService {
 
     public AuthResponse createInitialAdmin(UserRequest request) {
         if (hasStaffAccounts()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Initial admin setup has already been completed");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Initial super admin setup has already been completed");
         }
 
         if (isBlank(request.firstName()) || isBlank(request.lastName())
@@ -70,7 +71,7 @@ public class UserService {
 
         User user = new User();
         user.setEmail(request.email());
-        user.setRole(UserRole.ADMIN);
+        user.setRole(UserRole.SUPER_ADMIN);
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPassword(request.password());

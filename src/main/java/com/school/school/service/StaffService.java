@@ -2,6 +2,7 @@ package com.school.school.service;
 
 import com.school.school.entity.School;
 import com.school.school.entity.Staff;
+import com.school.school.entity.StaffRole;
 import com.school.school.entity.StaffStatus;
 import com.school.school.entity.User;
 import com.school.school.entity.UserRole;
@@ -70,13 +71,15 @@ public class StaffService {
     }
 
     @Transactional
-    public StaffResponse createStaff(StaffRequest request) {
+    public StaffResponse createStaff(UserRole actorRole, StaffRequest request) {
         validateRequiredFields(request);
+        validateRoleAssignment(actorRole, request.role());
 
         School school = schoolRepository.findById(request.schoolId())
                 .orElseThrow(() -> new IllegalStateException("School not found"));
         User user = userRepository.findByEmail(request.email())
                 .orElseGet(() -> createUserForStaff(request));
+        validateExistingUserRoleAssignment(actorRole, user, request.role());
 
         if (staffRepository.findByUserIdAndSchoolId(user.getId(), school.getId()).isPresent()) {
             throw new IllegalStateException("This user is already staff for this school");
@@ -93,9 +96,10 @@ public class StaffService {
     }
 
     @Transactional
-    public StaffResponse updateStaff(UUID staffId, StaffRequest request) {
+    public StaffResponse updateStaff(UserRole actorRole, UUID staffId, StaffRequest request) {
         Staff staff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new IllegalStateException("Staff member not found"));
+        validateStaffUpdate(actorRole, staff, request);
 
         if (request.schoolId() != null) {
             School school = schoolRepository.findById(request.schoolId())
@@ -125,9 +129,10 @@ public class StaffService {
     }
 
     @Transactional
-    public StaffResponse revokeStaff(UUID staffId) {
+    public StaffResponse revokeStaff(UserRole actorRole, UUID staffId) {
         Staff staff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new IllegalStateException("Staff member not found"));
+        validateStaffRemoval(actorRole, staff, "revoke");
 
         staff.setStatus(StaffStatus.INACTIVE);
         User user = staff.getUser();
@@ -146,10 +151,75 @@ public class StaffService {
         return mapToResponse(staff);
     }
 
-    public void deleteStaff(UUID staffId) {
+    @Transactional
+    public StaffResponse restoreStaff(UserRole actorRole, UUID staffId) {
         Staff staff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new IllegalStateException("Staff member not found"));
+        validateStaffManagement(actorRole, staff);
+
+        staff.setStatus(StaffStatus.ACTIVE);
+        staff.getUser().setRole(UserRole.fromStaffRole(staff.getRole()));
+
+        return mapToResponse(staff);
+    }
+
+    public void deleteStaff(UserRole actorRole, UUID staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new IllegalStateException("Staff member not found"));
+        validateStaffRemoval(actorRole, staff, "delete");
         staffRepository.deleteById(staff.getId());
+    }
+
+    private void validateStaffUpdate(UserRole actorRole, Staff staff, StaffRequest request) {
+        validateStaffManagement(actorRole, staff);
+
+        if (request.role() != null) {
+            validateRoleAssignment(actorRole, request.role());
+            if (staff.getRole() == StaffRole.SUPER_ADMIN && request.role() != StaffRole.SUPER_ADMIN) {
+                throw new IllegalStateException("Super admin cannot be removed");
+            }
+            if (staff.getRole() == StaffRole.ADMIN && request.role() != StaffRole.ADMIN && actorRole != UserRole.SUPER_ADMIN) {
+                throw new IllegalStateException("Only super admin can change an admin role");
+            }
+        }
+
+        if (request.status() == StaffStatus.INACTIVE) {
+            validateStaffRemoval(actorRole, staff, "revoke");
+        }
+    }
+
+    private void validateStaffRemoval(UserRole actorRole, Staff staff, String action) {
+        if (staff.getRole() == StaffRole.SUPER_ADMIN) {
+            throw new IllegalStateException("Super admin cannot be removed");
+        }
+
+        validateStaffManagement(actorRole, staff);
+
+        if (staff.getRole() == StaffRole.ADMIN && actorRole != UserRole.SUPER_ADMIN) {
+            throw new IllegalStateException("Only super admin can " + action + " an admin");
+        }
+    }
+
+    private void validateStaffManagement(UserRole actorRole, Staff staff) {
+        if (actorRole != UserRole.SUPER_ADMIN && staff.getRole() == StaffRole.ADMIN) {
+            throw new IllegalStateException("Only super admin can manage an admin");
+        }
+    }
+
+    private void validateRoleAssignment(UserRole actorRole, StaffRole targetRole) {
+        if ((targetRole == StaffRole.SUPER_ADMIN || targetRole == StaffRole.ADMIN) && actorRole != UserRole.SUPER_ADMIN) {
+            throw new IllegalStateException("Only super admin can assign admin roles");
+        }
+    }
+
+    private void validateExistingUserRoleAssignment(UserRole actorRole, User user, StaffRole targetRole) {
+        if (user.getRole() == UserRole.SUPER_ADMIN && targetRole != StaffRole.SUPER_ADMIN) {
+            throw new IllegalStateException("Super admin cannot be removed");
+        }
+
+        if (user.getRole() == UserRole.ADMIN && actorRole != UserRole.SUPER_ADMIN) {
+            throw new IllegalStateException("Only super admin can manage an admin");
+        }
     }
 
     private void validateRequiredFields(StaffRequest request) {

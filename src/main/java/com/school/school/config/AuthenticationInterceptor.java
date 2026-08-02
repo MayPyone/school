@@ -57,6 +57,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
 
     private boolean isAllowedForRole(HttpServletRequest request, UserRole role) {
+        if (isSuperAdminOnlyRoute(request)) {
+            return role == UserRole.SUPER_ADMIN;
+        }
+
+        if (isAdminOnlyRoute(request)) {
+            return role == UserRole.ADMIN || role == UserRole.SUPER_ADMIN;
+        }
+
         if (role != UserRole.END_USER) {
             return true;
         }
@@ -78,6 +86,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 || path.matches("^/api/v1/schools/[^/]+/schedules/?$")
                 || path.matches("^/api/v1/schools/[^/]+/staff/?$")
                 || path.matches("^/api/v1/schools/[^/]+/activities/?$");
+    }
+
+    private boolean isAdminOnlyRoute(HttpServletRequest request) {
+        String method = request.getMethod();
+        String path = request.getRequestURI();
+
+        return (HttpMethod.POST.matches(method) && path.matches("^/api/v1/admin/staff/?$"))
+                || (HttpMethod.PUT.matches(method) && path.matches("^/api/v1/admin/staff/[^/]+(/(revoke|restore))?/?$"))
+                || (HttpMethod.DELETE.matches(method) && path.matches("^/api/v1/admin/staff/[^/]+/?$"));
+    }
+
+    private boolean isSuperAdminOnlyRoute(HttpServletRequest request) {
+        String method = request.getMethod();
+        String path = request.getRequestURI();
+
+        return (HttpMethod.GET.matches(method) && path.matches("^/api/v1/admin/schools/[^/]+/export/?$"))
+                || (HttpMethod.POST.matches(method) && path.matches("^/api/v1/admin/schools/[^/]+/import/?$"));
     }
 
     private boolean isPublicRoute(HttpServletRequest request) {
